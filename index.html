@@ -125,7 +125,7 @@ td.janela .tag-wrap { margin-top: 6px; }
   <div class="top">
     <div class="titulo-area">
       <h1>Painel de Mudanças</h1>
-      <div class="sub">Governança de TI · GMUD Normal<span id="pagina-indicador"></span><span id="erro-dados"></span></div>
+      <div class="sub">Governança de TI · GMUD<span id="pagina-indicador"></span><span id="erro-dados"></span></div>
     </div>
     <div class="destaque">
       <span class="rotulo">Janela</span>
@@ -383,9 +383,13 @@ function render(mudancas) {
     alvo = Math.max.apply(null, comData.map(function (x) { return x.dt; }));
   }
 
-  var daJanela = comData.filter(function (x) { return x.dt === alvo; }).map(function (x) { return x.m; });
+  // Emergencial ainda em votação aparece sempre, mesmo com a Janela de outra data; decidido, segue só a janela dele
+  var daJanela = comData.filter(function (x) {
+    return x.dt === alvo || (x.m.TipoMudanca === 'Emergencial' && veredito(x.m).cls === 'aguardando');
+  }).map(function (x) { return x.m; });
+  var daData = comData.filter(function (x) { return x.dt === alvo; })[0].m;
 
-  document.getElementById('janela-valor').textContent = formatJanelaBR(daJanela[0].JaneladeImplementa_x00e7__x00e3_);
+  document.getElementById('janela-valor').textContent = formatJanelaBR(daData.JaneladeImplementa_x00e7__x00e3_);
   document.getElementById('total-valor').textContent = daJanela.length;
 
   var itensPorPagina = calcularItensPorPagina();
