@@ -109,6 +109,13 @@ td.seat { text-align: center; padding: 4px 2px; }
 @keyframes encher { from { width: 0%; } to { width: 100%; } }
 
 .msg { padding: 32px; text-align: center; color: var(--text-muted); font-family: 'IBM Plex Mono', Consolas, 'Courier New', monospace; }
+
+/* ---- Emergencial ---- */
+:root { --emerg: #9A5BE0; --emerg-dim: rgba(154,91,224,0.10); }
+.mark.na { background-color: transparent; background-image: url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2016%2016'%3E%3Cpath%20d='M4.4%208h7.2'%20fill='none'%20stroke='%2370798F'%20stroke-width='1.6'%20stroke-linecap='round'/%3E%3C/svg%3E"); background-size: 70% 70%; opacity: 0.85; }
+tbody tr.emerg { background: var(--emerg-dim) !important; box-shadow: inset 6px 0 0 var(--emerg); }
+td.janela .tag-wrap { margin-top: 6px; }
+.tag-emerg { display: inline-block; padding: 2px 8px; border-radius: 4px; border: 1.5px solid var(--emerg); color: var(--emerg); font-family: 'IBM Plex Mono', Consolas, 'Courier New', monospace; font-size: 12.5px; font-weight: 600; letter-spacing: 0.08em; }
 </style>
 </head>
 <body>
@@ -153,6 +160,7 @@ td.seat { text-align: center; padding: 4px 2px; }
       <div class="item"><span class="mark aprovado auto"></span>Aprovado (automático)</div>
       <div class="item"><span class="mark reprovado"></span>Reprovado</div>
       <div class="item"><span class="mark pendente"></span>Pendente</div>
+      <div class="item"><span class="mark na"></span>Não se aplica</div>
       <div class="item fim">Mais informações no board de Gestão de Mudanças</div>
     </div>
     <div class="progress-track"><div class="progress-fill" id="progress"></div></div>
@@ -214,6 +222,7 @@ function esc(v) {
 }
 
 function parseVoto(raw) {
+  if (raw && raw.indexOf('N/A') === 0) return { status: 'na', auto: false };
   if (!raw || raw === 'Pendente') return { status: 'pendente', auto: false };
   if (raw.indexOf('Approve') === 0) return { status: 'aprovado', auto: raw.indexOf('Voto Automático') !== -1 };
   if (raw.indexOf('Reject') === 0) return { status: 'reprovado', auto: false };
@@ -310,6 +319,7 @@ function renderPagina() {
 
   paginas[paginaAtual].forEach(function (m) {
     var tr = document.createElement('tr');
+    if (m.TipoMudanca === 'Emergencial') { tr.className = 'emerg'; }
     tr.style.height = alturaLinhaPx + 'px';
 
     var tdId = document.createElement('td');
@@ -324,7 +334,7 @@ function renderPagina() {
 
     var tdJanela = document.createElement('td');
     tdJanela.className = 'janela';
-    tdJanela.textContent = formatJanelaBR(m.JaneladeImplementa_x00e7__x00e3_);
+    tdJanela.innerHTML = esc(formatJanelaBR(m.JaneladeImplementa_x00e7__x00e3_)) + (m.TipoMudanca === 'Emergencial' ? '<div class="tag-wrap"><span class="tag-emerg">EMERGENCIAL</span></div>' : '');
     tr.appendChild(tdJanela);
 
     SEATS.forEach(function (s) {
